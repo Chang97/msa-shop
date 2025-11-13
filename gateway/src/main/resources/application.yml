@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+          # auth-service가 /api/auth를 컨텍스트로 쓰므로 StripPrefix는 불필요
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
