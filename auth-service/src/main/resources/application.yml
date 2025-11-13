@@ -1,0 +1,84 @@
+server:
+  port: 8080
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+  application:
+    name: backend-projectbase
+  datasource:
+    common:
+      driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://172.22.112.1:5432/coredb?currentSchema=common
+      username: app_user
+      password: 1234
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: hYkqkX3xMTU5MwC3
+  jpa:
+    hibernate:
+      ddl-auto: none  # validate / update / create-drop 등 필요에 따라 설정
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+
+app:
+  auth:
+    refresh-token:
+      ttl-seconds: 604800           # 7일: JWT refresh 만료와 맞춰주세요
+      key-prefix: auth:refresh_token
+    authority:
+      cache-ttl-seconds: 600        # 권한 캐시 TTL 10분 예시
+      key-prefix: auth:perm         # 권한 캐시 키 prefix
+  permission:
+    cache:
+      ttl-seconds: 600
+      key-prefix: app:permission
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.base.domain
+decorator:
+  datasource:
+    p6spy:
+      enabled: true
+
+logging:
+  level:
+    # org.apache.ibatis: DEBUG
+    # org.springframework.http.converter: DEBUG
+    # base.work: TRACE
+
+    p6spy: INFO
+    
+
+
+jwt:
+  secret: ${JWT_SECRET:df431d21a3b874d687351f8f754eb08f620c9cc36d5f6931cff8abf134959a94c8ff62e7e0b6f2ff4e8922746718969c304711afa000691eb9a33c4ea6d6d437}
+  access-token-expiration-seconds: ${JWT_ACCESS_TOKEN_EXPIRATION_SECONDS:3600}
+  refresh-token-expiration-seconds: ${JWT_REFRESH_TOKEN_EXPIRATION_SECONDS:604800}
+
+# application.yml
+cors:
+  allowed-origins:
+    - "http://localhost:5173"
+  allowed-methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"]
+  allowed-headers: ["Authorization","Content-Type"]
+  exposed-headers: ["Authorization"]   # 토큰 재발급 응답 헤더를 읽어야 할 때만
+  allow-credentials: true   # 쿠키 쓸 때 true
+  max-age: 3600
+
+security:
+  cookies:
+    secure: false
