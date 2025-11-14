@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.base.contexts.organization.adapter.in.web.command.dto.OrgCommandRequest;
 import com.base.contexts.organization.adapter.in.web.command.dto.OrgCommandResponse;
@@ -25,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/orgs")
+@RequestMapping("/orgs")
 @RequiredArgsConstructor
 public class OrgCommandController {
 
@@ -39,7 +40,10 @@ public class OrgCommandController {
     public ResponseEntity<OrgCommandResponse> create(@Valid @RequestBody OrgCommandRequest request) {
         OrgCommand command = commandMapper.toCommand(request);
         OrgCommandResult result = createOrgUseCase.handle(command);
-        URI location = URI.create("/api/orgs/" + result.orgId());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(result.orgId())
+                .toUri();
         return ResponseEntity.created(location).body(commandMapper.toResponse(result));
     }
 

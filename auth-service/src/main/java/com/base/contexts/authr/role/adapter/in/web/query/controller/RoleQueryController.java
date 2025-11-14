@@ -21,7 +21,7 @@ import com.base.contexts.authr.role.application.query.port.in.GetRolesUseCase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/authr/roles")
+@RequestMapping("/authr/roles")
 @RequiredArgsConstructor
 public class RoleQueryController {
 

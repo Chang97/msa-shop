@@ -23,7 +23,7 @@ import com.base.contexts.code.application.query.port.in.GetCodesUseCase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/codes")
+@RequestMapping("/codes")
 @RequiredArgsConstructor
 public class CodeQueryController {
     

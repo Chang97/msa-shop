@@ -15,7 +15,7 @@ import com.base.contexts.attachment.application.query.port.in.GetAtchFileItemsUs
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/attachments/{atchFileId}/items")
+@RequestMapping("/attachments/{atchFileId}/items")
 @RequiredArgsConstructor
 public class AtchFileItemQueryController {
 

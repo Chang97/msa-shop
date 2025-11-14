@@ -20,7 +20,7 @@ import com.base.contexts.attachment.application.query.port.in.GetAtchFilesUseCas
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/attachments")
+@RequestMapping("/attachments")
 @RequiredArgsConstructor
 public class AtchFileQueryController {
 

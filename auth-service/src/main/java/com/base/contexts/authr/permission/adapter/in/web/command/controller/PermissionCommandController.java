@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.base.contexts.authr.permission.adapter.in.web.command.dto.PermissionCommandRequest;
 import com.base.contexts.authr.permission.adapter.in.web.command.dto.PermissionCommandResponse;
@@ -23,7 +24,7 @@ import com.base.contexts.authr.permission.application.command.port.in.UpdatePerm
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/authr/permissions")
+@RequestMapping("/authr/permissions")
 @RequiredArgsConstructor
 public class PermissionCommandController {
     
@@ -36,7 +37,10 @@ public class PermissionCommandController {
     @PreAuthorize("hasAuthority('PERMISSION_CREATE')")
     public ResponseEntity<PermissionCommandResponse> createPermission(@RequestBody PermissionCommandRequest request) {
         PermissionCommandResult result = createPermissionUseCase.handle(permissionCommandWebMapper.toCommand(request));
-        URI location = URI.create("/api/authr/permissions/" + result.permissionId());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(result.permissionId())
+                .toUri();
         return ResponseEntity.created(location)
                 .body(permissionCommandWebMapper.toResponse(result));
     }

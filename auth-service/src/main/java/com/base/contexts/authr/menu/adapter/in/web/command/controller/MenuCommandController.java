@@ -1,6 +1,7 @@
 package com.base.contexts.authr.menu.adapter.in.web.command.controller;
 
 import java.net.URI;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.base.contexts.authr.menu.adapter.in.web.command.dto.MenuCommandRequest;
 import com.base.contexts.authr.menu.adapter.in.web.command.dto.MenuCommandResponse;
@@ -24,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/authr/menus")
+@RequestMapping("/authr/menus")
 @RequiredArgsConstructor
 public class MenuCommandController {
 
@@ -38,7 +40,10 @@ public class MenuCommandController {
     public ResponseEntity<MenuCommandResponse> createMenu(@Valid @RequestBody MenuCommandRequest request) {
         MenuCommand command = menuCommandWebMapper.toCommand(request);
         MenuCommandResult result = createMenuUseCase.handle(command);
-        URI location = URI.create("/api/authr/menus/" + result.menuId());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(result.menuId())
+                .toUri();
         return ResponseEntity.created(location)
                 .body(menuCommandWebMapper.toResponse(result));
     }

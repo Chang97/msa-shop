@@ -24,7 +24,7 @@ import com.base.contexts.authr.menu.application.query.port.in.GetMenusUseCase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/authr/menus")
+@RequestMapping("/authr/menus")
 @RequiredArgsConstructor
 public class MenuQueryController {
 

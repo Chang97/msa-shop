@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.base.contexts.authr.role.adapter.in.web.command.dto.RoleCommandRequest;
 import com.base.contexts.authr.role.adapter.in.web.command.dto.RoleCommandResponse;
@@ -25,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/authr/roles")
+@RequestMapping("/authr/roles")
 @RequiredArgsConstructor
 public class RoleCommandController {
 
@@ -39,7 +40,10 @@ public class RoleCommandController {
     public ResponseEntity<RoleCommandResponse> createRole(@Valid @RequestBody RoleCommandRequest request) {
         RoleCommand command = roleCommandWebMapper.toCommand(request);
         RoleCommandResult result = createRoleUseCase.handle(command);
-        URI location = URI.create("/api/authr/roles/" + result.roleId());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(result.roleId())
+                .toUri();
         return ResponseEntity.created(location)
                 .body(roleCommandWebMapper.toResponse(result));
     }

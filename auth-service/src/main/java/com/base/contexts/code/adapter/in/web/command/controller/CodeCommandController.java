@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.base.contexts.code.adapter.in.web.command.dto.CodeCommandRequest;
 import com.base.contexts.code.adapter.in.web.command.dto.CodeCommandResponse;
@@ -25,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/codes")
+@RequestMapping("/codes")
 @RequiredArgsConstructor
 public class CodeCommandController {
     
@@ -39,7 +40,10 @@ public class CodeCommandController {
     public ResponseEntity<CodeCommandResponse> createCode(@Valid @RequestBody CodeCommandRequest request) {
         CodeCommand command = codeCommandWebMapper.toCommand(request);
         CodeCommandResult result = createCodeUseCase.handle(command);
-        URI location = URI.create("/api/codes/" + result.codeId());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(result.codeId())
+                .toUri();
         return ResponseEntity.created(location)
                 .body(codeCommandWebMapper.toResponse(result));
     }

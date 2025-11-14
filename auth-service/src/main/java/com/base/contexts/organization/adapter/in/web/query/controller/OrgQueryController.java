@@ -19,7 +19,7 @@ import com.base.contexts.organization.application.query.port.in.GetOrgsUseCase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/orgs")
+@RequestMapping("/orgs")
 @RequiredArgsConstructor
 public class OrgQueryController {
 

@@ -34,7 +34,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/api/auth")
 @Validated
 @RequiredArgsConstructor
 public class AuthenticationController {

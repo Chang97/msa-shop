@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.base.contexts.attachment.adapter.in.web.command.dto.AtchFileItemCommandRequest;
 import com.base.contexts.attachment.adapter.in.web.command.dto.AtchFileItemCommandResponse;
@@ -25,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/attachments/{atchFileId}/items")
+@RequestMapping("/attachments/{atchFileId}/items")
 @RequiredArgsConstructor
 public class AtchFileItemCommandController {
 
@@ -40,7 +41,10 @@ public class AtchFileItemCommandController {
             @Valid @RequestBody AtchFileItemCommandRequest request) {
         AtchFileItemCommand command = commandMapper.toCommand(atchFileId, request);
         AtchFileItemCommandResult result = createAtchFileItemUseCase.handle(command);
-        URI location = URI.create("/api/attachments/" + atchFileId + "/items/" + result.atchFileItemId());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{itemId}")
+                .buildAndExpand(result.atchFileItemId())
+                .toUri();
         return ResponseEntity.created(location).body(commandMapper.toResponse(result));
     }
 
