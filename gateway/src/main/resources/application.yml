@@ -4,12 +4,32 @@ server:
 spring:
   cloud:
     gateway:
+      default-filters:
+        - RemoveHopByHopHeaders=connection,keep-alive,transfer-encoding,upgrade
       routes:
         - id: auth
           uri: http://localhost:8081
           predicates:
             - Path=/api/auth/**
           # auth-service가 /api/auth를 컨텍스트로 쓰므로 StripPrefix는 불필요
+        - id: products
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/products/**
+
+        - id: orders
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/orders/**
+      # CORS는 게이트웨이에서만 허용
+      globalcors:
+        corsConfigurations:
+          "[/**]":
+            allowedOrigins:
+              - "http://localhost:5173"   # Vite dev 서버
+            allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+            allowedHeaders: ["*"]
+            allowCredentials: true
 management:
   endpoints:
     web:
