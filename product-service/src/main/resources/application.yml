@@ -1,0 +1,28 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /api/products
+
+spring:
+  datasource:
+    url: jdbc:postgresql://172.22.112.1:5432/coredb?currentSchema=biz
+    username: postgres
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+decorator:
+  datasource:
+    p6spy:
+      enabled: true
+
+logging:
+  level:
+    # org.apache.ibatis: DEBUG
+    # org.springframework.http.converter: DEBUG
+    # base.work: TRACE
+
+    p6spy: INFO
+
+management.endpoints.web.exposure.include: health,info

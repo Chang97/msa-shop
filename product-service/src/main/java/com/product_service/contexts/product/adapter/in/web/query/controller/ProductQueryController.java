@@ -1,0 +1,31 @@
+package com.product_service.contexts.product.adapter.in.web.query.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.product_service.contexts.product.adapter.in.web.query.dto.ProductQueryResponse;
+import com.product_service.contexts.product.adapter.in.web.query.mapper.ProductQueryWebMapper;
+import com.product_service.contexts.product.application.query.port.in.GetProductsUseCase;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+public class ProductQueryController {
+
+    private final GetProductsUseCase getProductsUseCase;
+    private final ProductQueryWebMapper mapper;
+
+    @GetMapping("/health")
+    public Map<String, String> health() {
+        return Map.of("status", "UP");
+    }
+
+    @GetMapping
+    public List<ProductQueryResponse> list() {
+        return mapper.toResponses(getProductsUseCase.handle());
+    }
+}
