@@ -1,4 +1,4 @@
-package com.msashop.order.platform;
+package com.msashop.order.platform.config;
 
 import org.hibernate.engine.jdbc.internal.FormatStyle;
 import org.springframework.util.StringUtils;

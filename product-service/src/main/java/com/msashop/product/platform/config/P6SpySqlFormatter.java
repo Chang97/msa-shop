@@ -1,4 +1,4 @@
-package com.msashop.product.platform;
+package com.msashop.product.platform.config;
 
 import org.hibernate.engine.jdbc.internal.FormatStyle;
 import org.springframework.util.StringUtils;
