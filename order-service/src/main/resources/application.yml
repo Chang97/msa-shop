@@ -1,7 +1,7 @@
 server:
-  port: 8082
+  port: 8083
   servlet:
-    context-path: /api/products
+    context-path: /api/orders
 
 spring:
   datasource:

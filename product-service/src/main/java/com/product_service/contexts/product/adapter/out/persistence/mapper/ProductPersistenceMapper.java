@@ -10,7 +10,6 @@ import com.product_service.contexts.product.domain.model.Product;
 @Component
 public class ProductPersistenceMapper {
 
-    @NonNull
     public ProductEntity toEntity(@NonNull Product product) {
         ProductEntity entity = new ProductEntity();
         entity.setId(product.getId());
@@ -21,7 +20,6 @@ public class ProductPersistenceMapper {
         return entity;
     }
 
-    @Nullable
     public Product toDomain(@Nullable ProductEntity entity) {
         if (entity == null) {
             return null;
