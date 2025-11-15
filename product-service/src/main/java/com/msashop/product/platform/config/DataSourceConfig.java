@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 public class DataSourceConfig {
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.datasource.common")
+    @ConfigurationProperties(prefix = "spring.datasource.biz")
     public HikariConfig commonConfig() {
         return new HikariConfig();
     }

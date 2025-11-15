@@ -5,9 +5,16 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://172.22.112.1:5432/coredb?currentSchema=biz
-    username: postgres
-    password: 1234
+    biz:
+      driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://172.22.112.1:5432/coredb?currentSchema=biz
+      username: postgres
+      password: 1234
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
   jpa:
     hibernate:
       ddl-auto: none
@@ -22,6 +29,7 @@ logging:
     # org.apache.ibatis: DEBUG
     # org.springframework.http.converter: DEBUG
     # base.work: TRACE
+    org.springframework.web: DEBUG
 
     p6spy: INFO
 

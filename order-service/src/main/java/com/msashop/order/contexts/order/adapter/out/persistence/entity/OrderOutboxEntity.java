@@ -1,6 +1,10 @@
 package com.msashop.order.contexts.order.adapter.out.persistence.entity;
 
 import java.time.OffsetDateTime;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,6 +36,7 @@ public class OrderOutboxEntity {
     private String eventType;
 
     @Column(columnDefinition = "jsonb", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
     private String payload;
 
     @Column(nullable = false, length = 16)
