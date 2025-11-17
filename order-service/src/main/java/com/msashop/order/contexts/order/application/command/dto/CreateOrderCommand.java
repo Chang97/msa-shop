@@ -3,8 +3,11 @@ package com.msashop.order.contexts.order.application.command.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record CreateOrderCommand (
     long userId, 
+    @NotBlank
     String receiverName, 
     String receiverPhone,
     String postcode, 
