@@ -25,6 +25,7 @@ public class Order {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private final List<OrderItem> items = new ArrayList<>();
+    private boolean inventoryReserved;
 
     public Order(Long userId, String receiverName, String receiverPhone, Address addr) {
         this.userId = Objects.requireNonNull(userId);
@@ -87,6 +88,24 @@ public class Order {
     public void cancel() {
         ensure(status == OrderStatus.CREATED || status == OrderStatus.PENDING_PAYMENT, "취소 불가");
         status = OrderStatus.CANCELLED;
+    }
+
+    public void markInventoryReserved() {
+        if (inventoryReserved) {
+            throw new IllegalStateException("Inventory already reserved");
+        }
+        this.inventoryReserved = true;
+    }
+
+    public void releaseInventoryReservation() {
+        if (!inventoryReserved) {
+            return;
+        }
+        this.inventoryReserved = false;
+    }
+
+    public boolean isInventoryReserved() {
+        return inventoryReserved;
     }
 
     public void restoreStatus(OrderStatus status) {
