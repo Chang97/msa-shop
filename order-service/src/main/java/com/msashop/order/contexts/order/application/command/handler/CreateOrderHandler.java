@@ -43,6 +43,7 @@ public class CreateOrderHandler implements CreateOrderUseCase {
                 cmd.receiverPhone(), 
                 new Address(cmd.postcode(),cmd.address1(),cmd.address2())
         );
+
         List<ProductSnapshot> snapshots = new ArrayList<>();
         List<ReservedItem> reservedItems = new ArrayList<>();
 
@@ -59,6 +60,7 @@ public class CreateOrderHandler implements CreateOrderUseCase {
                 snapshots.add(productSnapshot);
                 productInventoryPort.reserve(productSnapshot.productId(), item.qty());
                 reservedItems.add(new ReservedItem(productSnapshot.productId(), item.qty()));
+                
                 o.addItem(new OrderItem(productSnapshot.productId(), productSnapshot.name(), new Money(productSnapshot.price()), item.qty()));
             }
             o.markInventoryReserved();

@@ -51,6 +51,7 @@ class CreateOrderHandlerTest {
 
     @Test
     void createOrder_success_reservesInventoryAndSavesOutbox() {
+        // given: 요청과 상품 스냅샷이 정상적으로 조회되는 상황
         CreateOrderCommand command = createCommand(
                 new CreateOrderCommand.Item(2001L, "상품A", new BigDecimal("35000"), 2)
         );
@@ -63,8 +64,10 @@ class CreateOrderHandlerTest {
             return saved;
         });
 
+        // when
         long orderId = handler.handle(command);
 
+        // then
         assertThat(orderId).isEqualTo(1L);
         verify(productInventoryPort).reserve(2001L, 2);
         verify(orderRepositoryPort).save(any(Order.class));
@@ -73,11 +76,13 @@ class CreateOrderHandlerTest {
 
     @Test
     void createOrder_productNotFound_throwsException() {
+        // given: 상품 조회가 empty를 반환하는 상황
         CreateOrderCommand command = createCommand(
                 new CreateOrderCommand.Item(2001L, "상품A", new BigDecimal("35000"), 1)
         );
         when(productQueryPort.findById(2001L)).thenReturn(Optional.empty());
 
+        // when & then
         assertThrows(NotFoundException.class, () -> handler.handle(command));
 
         verify(productInventoryPort, never()).reserve(anyLong(), anyInt());
@@ -87,6 +92,7 @@ class CreateOrderHandlerTest {
 
     @Test
     void createOrder_priceMismatch_releasesReservedInventory() {
+        // given: 첫 번째 상품은 정상, 두 번째 상품은 가격이 맞지 않는 시나리오로 설정
         CreateOrderCommand command = createCommand(
                 new CreateOrderCommand.Item(2001L, "상품A", new BigDecimal("35000"), 1),
                 new CreateOrderCommand.Item(2002L, "상품B", new BigDecimal("6000"), 1)
@@ -98,6 +104,7 @@ class CreateOrderHandlerTest {
         when(productQueryPort.findById(2001L)).thenReturn(Optional.of(firstSnapshot));
         when(productQueryPort.findById(2002L)).thenReturn(Optional.of(mismatchedSnapshot));
 
+        // when & then: 가격 불일치 예외 발생과 함께 reserve된 재고가 release 되는지 확인
         assertThatThrownBy(() -> handler.handle(command))
                 .isInstanceOf(ConflictException.class);
 
@@ -109,13 +116,13 @@ class CreateOrderHandlerTest {
 
     private CreateOrderCommand createCommand(CreateOrderCommand.Item... items) {
         return new CreateOrderCommand(
-                1L,
-                "홍길동",
-                "010-0000-0000",
-                "12345",
-                "서울시",
-                "강남구",
-                List.of(items)
+            1L,
+            "홍길동",
+            "010-0000-0000",
+            "12345",
+            "서울시",
+            "강남구",
+            List.of(items)
         );
     }
 }
