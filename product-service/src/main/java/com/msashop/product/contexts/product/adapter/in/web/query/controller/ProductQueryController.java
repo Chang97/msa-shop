@@ -35,7 +35,7 @@ public class ProductQueryController {
     }
 
     @GetMapping("/{id}")
-    public ProductQueryResponse getProduct(@PathVariable Long id) {
+    public ProductQueryResponse getProduct(@PathVariable("id") Long id) {
         return mapper.toResponse(getProductUseCase.handle(id));
     }
 }

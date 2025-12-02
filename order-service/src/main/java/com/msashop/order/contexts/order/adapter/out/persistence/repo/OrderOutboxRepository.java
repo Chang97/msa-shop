@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.msashop.order.contexts.order.adapter.out.persistence.entity.OrderOutboxEntity;
 
 public interface OrderOutboxRepository extends JpaRepository<OrderOutboxEntity, Long> {
 
     List<OrderOutboxEntity> findByStatusOrderByCreatedAtAsc(String status);
+    long countByStatus(String status);
 
     @Query(value="""
     select * 
@@ -17,5 +19,5 @@ public interface OrderOutboxRepository extends JpaRepository<OrderOutboxEntity, 
     where status='PENDING' 
     order by created_at for update skip locked limit :limit
     """, nativeQuery=true)
-    List<OrderOutboxEntity> findPendingForUpdate(int limit);
+    List<OrderOutboxEntity> findPendingForUpdate(@Param("limit") int limit);
 }

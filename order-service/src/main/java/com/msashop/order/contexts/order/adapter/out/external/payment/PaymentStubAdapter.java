@@ -12,6 +12,8 @@ import com.msashop.order.contexts.order.application.command.port.in.ChangeOrderS
 import com.msashop.order.contexts.order.domain.model.OrderStatus;
 import com.msashop.order.contexts.order.domain.port.out.PaymentPort;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -34,15 +36,19 @@ public class PaymentStubAdapter implements PaymentPort {
 
     @Override
     public void notifyOrderCreated(OrderCreatedEventPayload payload) {
-        executor.schedule(() -> {
-            try {
-                changeOrderStatusUseCase.handle(
-                        new ChangeOrderStatusCommand(payload.orderId(), OrderStatus.PAID)
-                );
-                log.info("Payment stub marked order {} as PAID", payload.orderId());
-            } catch (Exception ex) {
-                log.error("Payment stub failed to update order {}", payload.orderId(), ex);
-            }
-        }, delayMs, TimeUnit.MILLISECONDS);
+        executor.schedule(() -> processPayment(payload), delayMs, TimeUnit.MILLISECONDS);
+    }
+
+    @CircuitBreaker(name = "paymentClient", fallbackMethod = "paymentFallback")
+    @Retry(name = "paymentClient")
+    void processPayment(OrderCreatedEventPayload payload) {
+        changeOrderStatusUseCase.handle(
+                new ChangeOrderStatusCommand(payload.orderId(), OrderStatus.PAID)
+        );
+        log.info("Payment stub marked order {} as PAID", payload.orderId());
+    }
+
+    void paymentFallback(OrderCreatedEventPayload payload, Throwable ex) {
+        log.error("Payment stub failed to update order {}. 상태를 PENDING_PAYMENT로 유지합니다.", payload.orderId(), ex);
     }
 }

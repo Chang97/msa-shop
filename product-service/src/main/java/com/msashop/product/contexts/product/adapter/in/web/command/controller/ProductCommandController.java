@@ -43,7 +43,7 @@ public class ProductCommandController {
     }
 
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<ProductDetailResponse> changeStock(@PathVariable Long id,
+    public ResponseEntity<ProductDetailResponse> changeStock(@PathVariable("id") Long id,
             @Valid @RequestBody ChangeStockRequest request) {
         return ResponseEntity.ok(
                 mapper.toResponse(changeStockUseCase.handle(mapper.toCommand(id, request)))

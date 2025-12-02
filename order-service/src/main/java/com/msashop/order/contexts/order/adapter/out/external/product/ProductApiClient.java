@@ -9,6 +9,9 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+
 @Component
 public class ProductApiClient {
     private final RestClient restClient;
@@ -24,6 +27,8 @@ public class ProductApiClient {
     }
 
     @SuppressWarnings("null")
+    @CircuitBreaker(name = "productClient", fallbackMethod = "getProductFallback")
+    @Retry(name = "productClient")
     public Optional<ProductResponse> getProduct(long productId) {
         try {
             ProductResponse body = restClient.get()
@@ -43,6 +48,8 @@ public class ProductApiClient {
     }
 
     @SuppressWarnings("null")
+    @CircuitBreaker(name = "productClient", fallbackMethod = "changeStockFallback")
+    @Retry(name = "productClient")
     public void changeStock(long productId, int delta) {
         try {
             restClient.patch()
@@ -56,6 +63,18 @@ public class ProductApiClient {
         } catch (RestClientException e) {
             throw new ProductApiException(ErrorType.IO,
                     "재고 변경 실패 productId=" + productId + ", delta=" + delta, e);
+        }
+    }
+
+    public boolean ping() {
+        try {
+            restClient.get()
+                    .uri(properties.getPaths().getHealth())
+                    .retrieve()
+                    .toBodilessEntity();
+            return true;
+        } catch (RestClientException ex) {
+            return false;
         }
     }
 
@@ -94,5 +113,13 @@ public class ProductApiClient {
         public ErrorType errorType() {
             return errorType;
         }
+    }
+
+    private Optional<ProductResponse> getProductFallback(long productId, Throwable ex) {
+        throw new IllegalStateException("상품 정보를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.", ex);
+    }
+
+    private void changeStockFallback(long productId, int delta, Throwable ex) {
+        throw new IllegalStateException("재고 변경을 수행할 수 없습니다. 잠시 후 다시 시도해주세요.", ex);
     }
 }

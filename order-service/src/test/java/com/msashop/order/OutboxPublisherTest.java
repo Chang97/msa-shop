@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,8 @@ import com.msashop.order.contexts.order.adapter.out.persistence.event.OutboxPubl
 import com.msashop.order.contexts.order.adapter.out.persistence.repo.OrderOutboxRepository;
 import com.msashop.order.contexts.order.application.command.dto.OrderCreatedEventPayload;
 import com.msashop.order.contexts.order.domain.port.out.PaymentPort;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 @ExtendWith(MockitoExtension.class)
 class OutboxPublisherTest {
@@ -29,12 +32,19 @@ class OutboxPublisherTest {
     @Mock PaymentPort paymentPort;
 
     ObjectMapper objectMapper;
+    MeterRegistry meterRegistry;
     OutboxPublisher outboxPublisher;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        outboxPublisher = new OutboxPublisher(orderOutboxRepository, paymentPort, objectMapper, 10, true);
+        meterRegistry = new SimpleMeterRegistry();
+        outboxPublisher = new OutboxPublisher(orderOutboxRepository, paymentPort, objectMapper, meterRegistry, 10, true);
+    }
+
+    @AfterEach
+    void tearDown() {
+        meterRegistry.close();
     }
 
     @Test

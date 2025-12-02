@@ -48,4 +48,36 @@ order:
   payment:
     stub-delay-ms: 2000
 
-management.endpoints.web.exposure.include: health,info
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: order-service
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      productClient:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+      paymentClient:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 2
+  retry:
+    instances:
+      productClient:
+        max-attempts: 3
+        wait-duration: 200ms
+      paymentClient:
+        max-attempts: 2
+        wait-duration: 200ms
+

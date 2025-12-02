@@ -27,6 +27,6 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
 
     @Override
     public Optional<Order> findById(long id) {
-        return orderRepository.findById(id).map(mapper::toDomain);
+        return orderRepository.findWithItemsById(id).map(mapper::toDomain);
     }
 }

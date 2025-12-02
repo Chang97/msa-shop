@@ -18,5 +18,6 @@ public class ProductClientProperties {
     public static class Paths {
         private String detail = "/products/{id}";
         private String stock = "/products/{id}/stock";
+        private String health = "/products/health";
     }
 }
