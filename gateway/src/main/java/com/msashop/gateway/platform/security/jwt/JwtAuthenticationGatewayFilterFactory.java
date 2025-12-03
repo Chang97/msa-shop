@@ -1,0 +1,26 @@
+package com.msashop.gateway.platform.security.jwt;
+
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.stereotype.Component;
+
+@Component
+public class JwtAuthenticationGatewayFilterFactory
+        extends AbstractGatewayFilterFactory<JwtAuthenticationGatewayFilterFactory.Config> {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public JwtAuthenticationGatewayFilterFactory(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        super(Config.class);
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+        return jwtAuthenticationFilter;
+    }
+
+    public static class Config {
+        // configuration placeholder if needed later
+    }
+}

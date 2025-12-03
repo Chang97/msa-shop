@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.msashop.order.contexts.order.adapter.in.web.command.dto.IdResponse;
 import com.msashop.order.contexts.order.adapter.in.web.command.dto.ChangeOrderStatusRequest;
 import com.msashop.order.contexts.order.adapter.in.web.command.dto.ChangeOrderStatusResponse;
+import com.msashop.order.contexts.order.adapter.in.web.command.dto.CreateOrderRequest;
 import com.msashop.order.contexts.order.application.command.dto.CreateOrderCommand;
 import com.msashop.order.contexts.order.application.command.dto.ChangeOrderStatusCommand;
 import com.msashop.order.contexts.order.application.command.port.in.CreateOrderUseCase;
@@ -29,13 +31,32 @@ public class OrderCommandController {
     private final CreateOrderUseCase create; 
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
 
-    @PostMapping 
-    public ResponseEntity<?> create(@RequestBody CreateOrderCommand cmd) { 
-        long id = create.handle(cmd); 
-        return ResponseEntity.ok(new IdResponse(id)); 
+    @PostMapping
+    public ResponseEntity<IdResponse> create(
+            @RequestHeader("X-User-Id") Long userId,
+            @Valid @RequestBody CreateOrderRequest request
+    ) {
+        CreateOrderCommand cmd = new CreateOrderCommand(
+                userId,
+                request.receiverName(),
+                request.receiverPhone(),
+                request.postcode(),
+                request.address1(),
+                request.address2(),
+                request.items().stream()
+                        .map(item -> new CreateOrderCommand.Item(
+                                item.productId(),
+                                item.productName(),
+                                item.unitPrice(),
+                                item.qty()
+                        ))
+                        .toList()
+        );
+        long id = create.handle(cmd);
+        return ResponseEntity.ok(new IdResponse(id));
     }
 
-    @PatchMapping("/{orderId}/status")
+@PatchMapping("/{orderId}/status")
     public ResponseEntity<ChangeOrderStatusResponse> changeStatus(
             @PathVariable("orderId") long orderId,
             @Valid @RequestBody ChangeOrderStatusRequest request

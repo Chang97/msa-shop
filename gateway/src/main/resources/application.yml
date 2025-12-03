@@ -16,11 +16,12 @@ spring:
               uri: http://localhost:8082
               predicates:
                 - Path=/api/products/**
-
             - id: orders
               uri: http://localhost:8083
               predicates:
                 - Path=/api/orders/**
+              filters:
+                - JwtAuthentication
           # CORS는 게이트웨이에서만 허용
           globalcors:
             cors-configurations:
@@ -35,3 +36,7 @@ management:
     web:
       exposure:
         include: health,info
+
+security:
+  jwt:
+    secret: df431d21a3b874d687351f8f754eb08f620c9cc36d5f6931cff8abf134959a94c8ff62e7e0b6f2ff4e8922746718969c304711afa000691eb9a33c4ea6d6d437

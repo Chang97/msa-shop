@@ -6,7 +6,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import com.msashop.auth.platform.security.userdetails.UserPrincipal;
@@ -21,6 +30,7 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtService {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
     private static final int MIN_SECRET_LENGTH = 64;
 
     private final JwtProperties properties; // 설정 값
@@ -41,6 +51,7 @@ public class JwtService {
             throw new IllegalStateException("JWT secret must be at least " + MIN_SECRET_LENGTH + " characters long.");
         }
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        log.info("Auth-service JWT secret hash={}", DigestUtils.md5DigestAsHex(secret.getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
