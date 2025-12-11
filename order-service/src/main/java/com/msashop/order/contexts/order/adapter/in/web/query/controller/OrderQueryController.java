@@ -36,12 +36,12 @@ public class OrderQueryController {
 
     @GetMapping
     public PageResult<OrderSummaryView> list(
-            @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) List<OrderStatus> status,
-            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) OffsetDateTime from,
-            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) OffsetDateTime to,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(name = "userId", required = false) Long userId,
+            @RequestParam(name = "status", required = false) List<OrderStatus> status,
+            @RequestParam(name = "from", required = false) @DateTimeFormat(iso = ISO.DATE_TIME) OffsetDateTime from,
+            @RequestParam(name = "to", required = false) @DateTimeFormat(iso = ISO.DATE_TIME) OffsetDateTime to,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size
     ) {
         OrderQueryCondition condition = new OrderQueryCondition(userId, status, from, to, page, size);
         return listOrdersUseCase.handle(condition);

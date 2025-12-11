@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import http, { toError } from '@/api/http';
 
-const defaultFilters = () => ({ status: '', from: '', to: '' });
+const defaultFilters = () => ({ status: '', from: '', to: '', userId: null });
 
 export const useOrderStore = defineStore('orders', {
   state: () => ({
@@ -28,6 +28,21 @@ export const useOrderStore = defineStore('orders', {
           page: this.page,
           size: this.size
         };
+
+        if (Array.isArray(params.status) && params.status.length) {
+          params.status = params.status.join(',');
+        } else {
+          delete params.status;
+        }
+
+        ['from', 'to'].forEach((key) => {
+          if (!params[key]) delete params[key];
+        });
+
+        if (!params.userId) {
+          delete params.userId;
+        }
+
         const { data } = await http.get('/orders', { params });
         this.list = data.content;
         this.totalElements = data.totalElements;
@@ -62,7 +77,10 @@ export const useOrderStore = defineStore('orders', {
         }
         return data;
       } catch (error) {
-        throw toError(error);
+        if (error.status === 409) {
+           await this.getById(id); // 최신 상태 재조회
+        }
+        throw error;
       }
     }
   }

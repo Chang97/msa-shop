@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const apiBase = (import.meta.env.VITE_API_BASE || '/api').trim() || '/api';
+
 const http = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE,
+  baseURL: apiBase,
   withCredentials: true
 });
 

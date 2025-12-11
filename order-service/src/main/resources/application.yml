@@ -2,6 +2,11 @@ server:
   port: 8083
   servlet:
     context-path: /api
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: always
+    include-exception: true
 
 spring:
   datasource:
@@ -29,7 +34,8 @@ logging:
     # org.apache.ibatis: DEBUG
     # org.springframework.http.converter: DEBUG
     # base.work: TRACE
-
+    org.springframework.web: DEBUG
+    com.msashop.order: DEBUG
     p6spy: INFO
 
 clients:
@@ -81,3 +87,6 @@ resilience4j:
         max-attempts: 2
         wait-duration: 200ms
 
+app:
+  error:
+    include-stacktrace: true

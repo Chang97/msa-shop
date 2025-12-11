@@ -1,20 +1,67 @@
 <template>
   <div class="app-shell">
     <header class="app-header">
-      <h1>MSA Shop</h1>
+      <RouterLink
+        to="/products"
+        class="brand"
+      >
+        MSA Shop
+      </RouterLink>
       <nav>
-        <RouterLink to="/orders">주문 목록</RouterLink>
-        <RouterLink to="/orders/new">주문 생성</RouterLink>
-        <RouterLink to="/profile">프로필</RouterLink>
+        <RouterLink to="/products">
+          상품 목록
+        </RouterLink>
+        <RouterLink to="/cart">
+          장바구니<span v-if="cart.totalQuantity"> ({{ cart.totalQuantity }})</span>
+        </RouterLink>
+        <RouterLink
+          v-if="auth.isAuthenticated"
+          to="/orders"
+        >
+          내 주문
+        </RouterLink>
+        <RouterLink
+          v-if="auth.canManageProducts"
+          to="/products/new"
+        >
+          상품 등록
+        </RouterLink>
       </nav>
-      <div class="user-info" v-if="auth.isAuthenticated">
-        <span>{{ auth.user?.userName ?? auth.user?.loginId }}</span>
-        <button type="button" @click="handleLogout">로그아웃</button>
+      <div class="user-area">
+        <RouterLink
+          v-if="!auth.isAuthenticated"
+          to="/login"
+          class="secondary"
+        >
+          로그인
+        </RouterLink>
+        <div
+          v-else
+          class="user-info"
+        >
+          <span>{{ auth.user?.userName ?? auth.user?.loginId }}</span>
+          <RouterLink
+            class="secondary"
+            to="/profile"
+          >
+            프로필
+          </RouterLink>
+          <button
+            type="button"
+            @click="handleLogout"
+          >
+            로그아웃
+          </button>
+        </div>
       </div>
     </header>
 
     <main>
-      <div v-if="notification.message" class="toast" :class="notification.variant">
+      <div
+        v-if="notification.message"
+        class="toast"
+        :class="notification.variant"
+      >
         {{ notification.message }}
       </div>
       <RouterView @notify="notify" />
@@ -26,8 +73,10 @@
 import { reactive } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useCartStore } from '@/stores/cart';
 
 const auth = useAuthStore();
+const cart = useCartStore();
 const router = useRouter();
 const notification = reactive({ message: '', variant: 'info' });
 

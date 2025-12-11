@@ -29,6 +29,8 @@ public class OrderPersistenceMapper {
         entity.setShippingPostcode(order.getShippingAddress().postcode());
         entity.setShippingAddress1(order.getShippingAddress().address1());
         entity.setShippingAddress2(order.getShippingAddress().address2());
+        entity.setCreatedAt(order.getCreatedAt());
+        entity.setUpdatedAt(order.getUpdatedAt());
 
         order.getItems().forEach(item -> entity.addItem(toItemEntity(item)));
         return entity;

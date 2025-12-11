@@ -10,7 +10,36 @@ const routes = [
   },
   {
     path: '/',
-    redirect: '/orders'
+    redirect: '/products'
+  },
+  {
+    path: '/products',
+    name: 'products-list',
+    component: () => import('@/pages/ProductsListPage.vue'),
+    meta: { public: true }
+  },
+  {
+    path: '/products/new',
+    name: 'products-new',
+    component: () => import('@/pages/ProductFormPage.vue'),
+    meta: { requiresSeller: true }
+  },
+  {
+    path: '/products/:id',
+    name: 'products-detail',
+    component: () => import('@/pages/ProductDetailPage.vue'),
+    meta: { public: true }
+  },
+  {
+    path: '/cart',
+    name: 'cart',
+    component: () => import('@/pages/CartPage.vue'),
+    meta: { public: true }
+  },
+  {
+    path: '/checkout',
+    name: 'checkout',
+    component: () => import('@/pages/OrderCreatePage.vue')
   },
   {
     path: '/orders',
@@ -19,8 +48,7 @@ const routes = [
   },
   {
     path: '/orders/new',
-    name: 'orders-new',
-    component: () => import('@/pages/OrderCreatePage.vue')
+    redirect: '/checkout'
   },
   {
     path: '/orders/:id',
@@ -45,11 +73,17 @@ router.beforeEach(async (to) => {
   if (!auth.isAuthenticated) {
     try {
       await auth.fetchMe();
-    } catch (_) {
+    } catch (error) {
       return { path: '/login', query: { redirect: to.fullPath } };
     }
   }
-  return auth.isAuthenticated ? true : { path: '/login', query: { redirect: to.fullPath } };
+  if (!auth.isAuthenticated) {
+    return { path: '/login', query: { redirect: to.fullPath } };
+  }
+  if (to.meta.requiresSeller && !auth.canManageProducts) {
+    return { path: '/products' };
+  }
+  return true;
 });
 
 export default router;

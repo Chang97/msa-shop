@@ -1,11 +1,13 @@
 package com.msashop.order.platform.exception;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +21,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @Value("${app.error.include-stacktrace:false}")
+    private boolean includeStackTrace;
+
     private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message) {
+        return buildErrorResponse(status, message, null);
+    }
+
+    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message, Exception ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", status.value());
         body.put("error", status.getReasonPhrase());
         body.put("message", message);
         body.put("__errmsg__", message);
+        if (ex != null && includeStackTrace) {
+            body.put("exception", ex.getClass().getName());
+            body.put("stacktrace", Arrays.stream(ex.getStackTrace())
+                    .map(StackTraceElement::toString)
+                    .limit(30)
+                    .toList());
+        }
         return ResponseEntity.status(status).body(body);
     }
 
@@ -79,6 +95,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleUnknown(Exception ex) {
         log.error("Unhandled exception", ex);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+                ex);
     }
 }

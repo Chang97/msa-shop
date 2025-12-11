@@ -58,12 +58,13 @@ public class OrderQueryAdapter implements OrderQueryPort {
                 .limit(cond.size())
                 .fetch();
 
-        long total = queryFactory
+        Long totalResult = queryFactory
                 .select(order.count())
                 .from(order)
                 .where(predicate)
                 .fetchOne();
 
+        long total = totalResult != null ? totalResult : 0L;
         return new PageResult<>(content, cond.page(), cond.size(), total);
     }
 }

@@ -3,16 +3,46 @@
     <header class="page-header">
       <h2>주문 목록</h2>
       <div class="filters">
-        <select v-model="filters.status" @change="load">
-          <option value="">전체 상태</option>
-          <option value="CREATED">신규</option>
-          <option value="PENDING_PAYMENT">결제대기</option>
-          <option value="PAID">결제완료</option>
-          <option value="FULFILLED">배송완료</option>
-          <option value="CANCELLED">취소</option>
+        <label class="my-only-toggle">
+          <input
+            v-model="myOnly"
+            type="checkbox"
+          >
+          내 주문만 보기
+        </label>
+        <select
+          v-model="filters.status"
+          @change="load"
+        >
+          <option value="">
+            전체 상태
+          </option>
+          <option value="CREATED">
+            신규
+          </option>
+          <option value="PENDING_PAYMENT">
+            결제대기
+          </option>
+          <option value="PAID">
+            결제완료
+          </option>
+          <option value="FULFILLED">
+            배송완료
+          </option>
+          <option value="CANCELLED">
+            취소
+          </option>
         </select>
-        <input type="date" v-model="filters.from" @change="load" />
-        <input type="date" v-model="filters.to" @change="load" />
+        <input
+          v-model="filters.from"
+          type="date"
+          @change="load"
+        >
+        <input
+          v-model="filters.to"
+          type="date"
+          @change="load"
+        >
       </div>
     </header>
 
@@ -24,25 +54,34 @@
           <th>총액</th>
           <th>사용자</th>
           <th>생성일</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
       <tbody>
-        <tr v-for="order in orders.list" :key="order.id">
+        <tr
+          v-for="order in orders.list"
+          :key="order.id"
+        >
           <td>{{ order.orderNumber }}</td>
           <td><StatusChip :status="order.status" /></td>
           <td>{{ formatCurrency(order.totalAmount) }}</td>
           <td>{{ order.userId }}</td>
           <td>{{ formatDate(order.createdAt) }}</td>
           <td>
-            <RouterLink :to="`/orders/${order.id}`">보기</RouterLink>
+            <RouterLink :to="`/orders/${order.id}`">
+              보기
+            </RouterLink>
           </td>
         </tr>
       </tbody>
     </table>
 
     <div class="pagination">
-      <button type="button" :disabled="orders.page === 0" @click="changePage(orders.page - 1)">
+      <button
+        type="button"
+        :disabled="orders.page === 0"
+        @click="changePage(orders.page - 1)"
+      >
         이전
       </button>
       <span>{{ orders.page + 1 }} / {{ totalPages }}</span>
@@ -58,13 +97,19 @@
 </template>
 
 <script setup>
-import { computed, reactive, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import StatusChip from '@/components/StatusChip.vue';
 import { useOrderStore } from '@/stores/order';
+import { useAuthStore } from '@/stores/auth';
 
 const orders = useOrderStore();
-const filters = reactive({ ...orders.filters });
+const auth = useAuthStore();
+const filters = reactive({
+  ...orders.filters,
+  userId: orders.filters.userId ?? auth.user?.userId ?? null
+});
+const myOnly = ref(true);
 
 const totalPages = computed(() => Math.ceil(orders.totalElements / orders.size) || 1);
 
@@ -92,5 +137,28 @@ watch(
   { deep: true }
 );
 
-load();
+watch(
+  () => auth.user?.userId,
+  (userId) => {
+    if (myOnly.value) {
+      filters.userId = userId ?? null;
+      load();
+    }
+  }
+);
+
+watch(
+  () => myOnly.value,
+  (val) => {
+    filters.userId = val ? auth.user?.userId ?? null : null;
+    load();
+  }
+);
+
+onMounted(() => {
+  if (myOnly.value) {
+    filters.userId = auth.user?.userId ?? null;
+  }
+  load();
+});
 </script>

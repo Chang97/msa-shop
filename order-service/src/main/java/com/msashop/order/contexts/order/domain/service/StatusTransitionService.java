@@ -18,6 +18,7 @@ public class StatusTransitionService {
         switch (to) {
             case PENDING_PAYMENT -> order.toPendingPayment();
             case PAID -> order.toPaid();
+            case FULFILLED -> order.toFulfilled();
             case CANCELLED -> order.cancel();
             default -> throw new IllegalStateException("unsupported: " + to);
         }

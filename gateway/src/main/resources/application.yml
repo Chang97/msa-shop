@@ -40,3 +40,9 @@ management:
 security:
   jwt:
     secret: df431d21a3b874d687351f8f754eb08f620c9cc36d5f6931cff8abf134959a94c8ff62e7e0b6f2ff4e8922746718969c304711afa000691eb9a33c4ea6d6d437
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+    reactor.netty.http.server: INFO
