@@ -22,9 +22,9 @@
       </label>
       <button
         type="submit"
-        :disabled="auth.loading"
+        :disabled="user.loading"
       >
-        {{ auth.loading ? '로그인 중...' : '로그인' }}
+        {{ user.loading ? '로그인 중...' : '로그인' }}
       </button>
     </form>
     <p
@@ -39,9 +39,9 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 
-const auth = useAuthStore();
+const user = useUserStore();
 const router = useRouter();
 const error = ref('');
 const form = reactive({ loginId: '', password: '' });
@@ -49,7 +49,7 @@ const form = reactive({ loginId: '', password: '' });
 async function submit() {
   error.value = '';
   try {
-    await auth.login(form);
+    await user.login(form);
     const redirect = router.currentRoute.value.query.redirect;
     router.push(typeof redirect === 'string' ? redirect : '/products');
   } catch (err) {

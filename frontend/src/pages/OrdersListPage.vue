@@ -101,13 +101,13 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import StatusChip from '@/components/StatusChip.vue';
 import { useOrderStore } from '@/stores/order';
-import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 
 const orders = useOrderStore();
-const auth = useAuthStore();
+const user = useUserStore();
 const filters = reactive({
   ...orders.filters,
-  userId: orders.filters.userId ?? auth.user?.userId ?? null
+  userId: orders.filters.userId ?? user.userId ?? null
 });
 const myOnly = ref(true);
 
@@ -138,7 +138,7 @@ watch(
 );
 
 watch(
-  () => auth.user?.userId,
+  () => user.userId,
   (userId) => {
     if (myOnly.value) {
       filters.userId = userId ?? null;
@@ -150,14 +150,14 @@ watch(
 watch(
   () => myOnly.value,
   (val) => {
-    filters.userId = val ? auth.user?.userId ?? null : null;
+    filters.userId = val ? user.userId ?? null : null;
     load();
   }
 );
 
 onMounted(() => {
   if (myOnly.value) {
-    filters.userId = auth.user?.userId ?? null;
+    filters.userId = user.userId ?? null;
   }
   load();
 });

@@ -15,13 +15,13 @@
           장바구니<span v-if="cart.totalQuantity"> ({{ cart.totalQuantity }})</span>
         </RouterLink>
         <RouterLink
-          v-if="auth.isAuthenticated"
+          v-if="user.isAuthenticated"
           to="/orders"
         >
           내 주문
         </RouterLink>
         <RouterLink
-          v-if="auth.canManageProducts"
+          v-if="canManageProducts"
           to="/products/new"
         >
           상품 등록
@@ -29,7 +29,7 @@
       </nav>
       <div class="user-area">
         <RouterLink
-          v-if="!auth.isAuthenticated"
+          v-if="!user.isAuthenticated"
           to="/login"
           class="secondary"
         >
@@ -39,7 +39,7 @@
           v-else
           class="user-info"
         >
-          <span>{{ auth.user?.userName ?? auth.user?.loginId }}</span>
+          <span>{{ user.userName || user.loginId }}</span>
           <RouterLink
             class="secondary"
             to="/profile"
@@ -70,15 +70,17 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 import { useCartStore } from '@/stores/cart';
 
-const auth = useAuthStore();
+const user = useUserStore();
 const cart = useCartStore();
 const router = useRouter();
 const notification = reactive({ message: '', variant: 'info' });
+const SELLER_PERMISSIONS = ['PRODUCT_MANAGE', 'PRODUCT_CREATE', 'PRODUCT_WRITE'];
+const canManageProducts = computed(() => user.hasPermission(SELLER_PERMISSIONS));
 
 function notify(payload) {
   notification.message = payload.message || '알 수 없는 오류가 발생했습니다.';
@@ -89,7 +91,7 @@ function notify(payload) {
 }
 
 async function handleLogout() {
-  await auth.logout();
+  await user.logout();
   router.push('/login');
 }
 </script>

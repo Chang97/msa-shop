@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
+
+const SELLER_PERMISSIONS = ['PRODUCT_MANAGE', 'PRODUCT_CREATE', 'PRODUCT_WRITE'];
 
 const routes = [
   {
@@ -69,18 +71,18 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   if (to.meta.public) return true;
-  const auth = useAuthStore();
-  if (!auth.isAuthenticated) {
+  const user = useUserStore();
+  if (!user.isAuthenticated) {
     try {
-      await auth.fetchMe();
+      await user.fetchSession();
     } catch (error) {
       return { path: '/login', query: { redirect: to.fullPath } };
     }
   }
-  if (!auth.isAuthenticated) {
+  if (!user.isAuthenticated) {
     return { path: '/login', query: { redirect: to.fullPath } };
   }
-  if (to.meta.requiresSeller && !auth.canManageProducts) {
+  if (to.meta.requiresSeller && !user.hasPermission(SELLER_PERMISSIONS)) {
     return { path: '/products' };
   }
   return true;

@@ -75,11 +75,11 @@
 <script setup>
 import { RouterLink, useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
-import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 
 const emit = defineEmits(['notify']);
 const cart = useCartStore();
-const auth = useAuthStore();
+const user = useUserStore();
 const router = useRouter();
 
 function formatCurrency(value) {
@@ -97,7 +97,7 @@ function remove(productId) {
 
 function proceedToCheckout() {
   if (!cart.items.length) return;
-  if (!auth.isAuthenticated) {
+  if (!user.isAuthenticated) {
     emit('notify', { message: '로그인 후 주문할 수 있습니다.' });
     router.push({ path: '/login', query: { redirect: '/checkout' } });
     return;

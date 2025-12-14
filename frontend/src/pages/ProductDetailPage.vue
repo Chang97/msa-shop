@@ -66,14 +66,14 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
-import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 
 const emit = defineEmits(['notify']);
 const route = useRoute();
 const router = useRouter();
 const products = useProductStore();
 const cart = useCartStore();
-const auth = useAuthStore();
+const user = useUserStore();
 
 const product = ref(null);
 const quantity = ref(1);
@@ -116,7 +116,7 @@ function handleAddToCart() {
 
 function handleBuyNow() {
   handleAddToCart();
-  if (!auth.isAuthenticated) {
+  if (!user.isAuthenticated) {
     router.push({ path: '/login', query: { redirect: '/checkout' } });
     return;
   }
