@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 
-const SELLER_PERMISSIONS = ['PRODUCT_MANAGE', 'PRODUCT_CREATE', 'PRODUCT_WRITE'];
+const PRODUCT_CREATE_PERMISSION = 'PRODUCT_CREATE';
 
 const routes = [
   {
@@ -82,7 +82,7 @@ router.beforeEach(async (to) => {
   if (!user.isAuthenticated) {
     return { path: '/login', query: { redirect: to.fullPath } };
   }
-  if (to.meta.requiresSeller && !user.hasPermission(SELLER_PERMISSIONS)) {
+  if (to.meta.requiresSeller && !user.hasPermission(PRODUCT_CREATE_PERMISSION)) {
     return { path: '/products' };
   }
   return true;

@@ -4,29 +4,33 @@ server:
 spring:
   cloud:
     gateway:
-      routes:
-        - id: auth
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/auth/**
-          filters:
-            - JwtAuthentication
-          # auth-service가 /api/auth를 컨텍스트로 쓰므로 StripPrefix는 불필요
-        - id: products
-          uri: http://localhost:8082
-          predicates:
-            - Path=/api/products/**
-          filters:
-            - JwtAuthentication
-        - id: orders
-          uri: http://localhost:8083
-          predicates:
-            - Path=/api/orders/**
-          filters:
-            - JwtAuthentication
       server:
         webflux:
-          
+          routes:
+            - id: auth
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/auth/**
+              # auth-service가 /api/auth를 컨텍스트로 쓰므로 StripPrefix는 불필요
+            - id: products-public
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/products/**
+                - Method=GET
+            - id: products-secure
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/products/**
+                - Method=POST,PATCH,PUT,DELETE
+              filters:
+                - JwtAuthentication
+            - id: orders
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/orders/**
+              filters:
+                - JwtAuthentication
+
           # CORS는 게이트웨이에서만 허용
           globalcors:
             cors-configurations:

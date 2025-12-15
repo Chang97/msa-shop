@@ -79,8 +79,8 @@ const user = useUserStore();
 const cart = useCartStore();
 const router = useRouter();
 const notification = reactive({ message: '', variant: 'info' });
-const SELLER_PERMISSIONS = ['PRODUCT_MANAGE', 'PRODUCT_CREATE', 'PRODUCT_WRITE'];
-const canManageProducts = computed(() => user.hasPermission(SELLER_PERMISSIONS));
+const PRODUCT_CREATE_PERMISSION = 'PRODUCT_CREATE';
+const canManageProducts = computed(() => user.hasPermission(PRODUCT_CREATE_PERMISSION));
 
 function notify(payload) {
   notification.message = payload.message || '알 수 없는 오류가 발생했습니다.';
