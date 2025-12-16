@@ -1,8 +1,8 @@
 package com.msashop.product.contexts.product.application.query.port.in;
 
-import com.msashop.product.contexts.product.domain.model.Product;
+import com.msashop.product.contexts.product.application.query.dto.ProductView;
 
 public interface GetProductUseCase {
 
-    Product handle(long id);
+    ProductView handle(long id);
 }

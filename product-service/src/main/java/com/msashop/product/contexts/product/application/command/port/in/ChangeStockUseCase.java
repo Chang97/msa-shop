@@ -1,9 +1,9 @@
 package com.msashop.product.contexts.product.application.command.port.in;
 
 import com.msashop.product.contexts.product.application.command.dto.ChangeStockCommand;
-import com.msashop.product.contexts.product.domain.model.Product;
+import com.msashop.product.contexts.product.application.command.dto.ProductDetailResult;
 
 public interface ChangeStockUseCase {
 
-    Product handle(ChangeStockCommand command);
+    ProductDetailResult handle(ChangeStockCommand command);
 }

@@ -5,8 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.msashop.product.contexts.product.application.query.dto.ProductView;
+import com.msashop.product.contexts.product.application.query.mapper.ProductQueryMapper;
 import com.msashop.product.contexts.product.application.query.port.in.GetProductsUseCase;
-import com.msashop.product.contexts.product.domain.model.Product;
 import com.msashop.product.contexts.product.domain.port.out.ProductPersistencePort;
 
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,10 @@ import lombok.RequiredArgsConstructor;
 public class GetProductsHandler implements GetProductsUseCase {
 
     private final ProductPersistencePort productPersistencePort;
+    private final ProductQueryMapper mapper;
 
     @Override
-    public List<Product> handle() {
-        return productPersistencePort.findAll();
+    public List<ProductView> handle() {
+        return mapper.toViews(productPersistencePort.findAll());
     }
 }
