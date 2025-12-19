@@ -35,10 +35,6 @@ dependencies {
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // MyBatis
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3' // MyBatis + Spring Boot
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'          // JDBC 지??
-    
     // DB 드라이버
     runtimeOnly 'org.postgresql:postgresql:42.7.4'
 
