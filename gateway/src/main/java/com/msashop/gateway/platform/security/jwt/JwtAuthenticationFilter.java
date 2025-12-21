@@ -15,6 +15,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class JwtAuthenticationFilter implements GatewayFilter {
 
@@ -38,12 +41,19 @@ public class JwtAuthenticationFilter implements GatewayFilter {
             Claims claims = jwtTokenProvider.validate(token);
             String userId = extractUserId(claims);
             String roles = claims.get("roles", String.class);
+            List<?> permissions = claims.get("perms", List.class);
             ServerHttpRequest mutated = exchange.getRequest()
                     .mutate()
                     .headers(h -> {
                         h.add("X-User-Id", userId);
                         if (roles != null) {
                             h.add("X-User-Roles", roles);
+                        }
+                        if (permissions != null && !permissions.isEmpty()) {
+                            String permsHeader = permissions.stream()
+                                    .map(String::valueOf)
+                                    .collect(Collectors.joining(","));
+                            h.add("X-User-Permissions", permsHeader);
                         }
                     })
                     .build();

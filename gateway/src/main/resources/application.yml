@@ -22,12 +22,16 @@ spring:
               predicates:
                 - Path=/api/products/**
                 - Method=POST,PATCH,PUT,DELETE
+              metadata:
+                required-permissions: PRODUCT_CREATE,PROUDCT_UPDATE,PRODUCT_DELETE
               filters:
                 - JwtAuthentication
-            - id: orders
+            - id: orders-secure
               uri: http://localhost:8083
               predicates:
                 - Path=/api/orders/**
+              metadata:
+                required-permissions: ORDER_CREATE,ORDER_UPDATE_STATUS,ORDER_CANCEL
               filters:
                 - JwtAuthentication
 

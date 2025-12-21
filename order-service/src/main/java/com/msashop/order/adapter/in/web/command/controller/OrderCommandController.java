@@ -1,6 +1,7 @@
 package com.msashop.order.adapter.in.web.command.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import com.msashop.order.adapter.in.web.command.mapper.OrderCommandWebMapper;
 import com.msashop.order.application.command.port.in.ChangeOrderStatusUseCase;
 import com.msashop.order.application.command.port.in.CreateOrderUseCase;
 import com.msashop.order.domain.service.StatusTransitionResult;
+import com.msashop.order.infrastructure.security.CurrentUserId;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,15 +33,17 @@ public class OrderCommandController {
     private final OrderCommandWebMapper mapper;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ORDER_CREATE')")
     public ResponseEntity<IdResponse> create(
-            @RequestHeader("X-User-Id") Long userId,
+            @CurrentUserId Long userId,
             @Valid @RequestBody CreateOrderRequest request
     ) {
         long id = create.handle(mapper.toCommand(userId, request));
         return ResponseEntity.ok(new IdResponse(id));
     }
 
-@PatchMapping("/{orderId}/status")
+    @PatchMapping("/{orderId}/status")
+    @PreAuthorize("hasAuthority('ORDER_UPDATE_STATUS')")
     public ResponseEntity<ChangeOrderStatusResponse> changeStatus(
             @PathVariable("orderId") long orderId,
             @Valid @RequestBody ChangeOrderStatusRequest request
