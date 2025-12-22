@@ -40,10 +40,19 @@ logging:
 
 clients:
   product:
-    base-url: http://localhost:8080/api
+    base-url: http://localhost:8080/api/internal
     paths:
       detail: /products/{id}
       stock: /products/{id}/stock
+
+security:
+  service-client:
+    token-url: http://localhost:8081/api/auth/internal/service-tokens
+    client-id: order-service
+    client-secret: ${ORDER_SERVICE_CLIENT_SECRET:local-order-service-secret}
+    internal-secret: ${INTERNAL_SERVICE_SECRET:local-internal-secret}
+    internal-secret-header: X-Internal-Secret
+    renewal-skew-seconds: 30
 
 order:
   outbox:

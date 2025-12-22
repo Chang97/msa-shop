@@ -3,26 +3,39 @@ package com.msashop.order.adapter.out.external.product;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
+import com.msashop.order.infrastructure.security.current.CurrentUserProvider;
+import com.msashop.order.infrastructure.security.service.ServiceTokenManager;
+
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 
 @Component
 public class ProductApiClient {
+    private static final String USER_ID_HEADER = "X-User-Id";
+    private static final String PERMISSIONS_HEADER = "X-User-Permissions";
+
     private final RestClient restClient;
     private final ProductClientProperties properties;
+    private final CurrentUserProvider currentUserProvider;
+    private final ServiceTokenManager serviceTokenManager;
 
-    @SuppressWarnings("null")
-    public ProductApiClient(RestClient.Builder builder, ProductClientProperties properties) {
+    public ProductApiClient(RestClient.Builder builder,
+            ProductClientProperties properties,
+            CurrentUserProvider currentUserProvider,
+            ServiceTokenManager serviceTokenManager) {
         if (properties.getBaseUrl() == null || properties.getBaseUrl().isBlank()) {
             throw new IllegalStateException("clients.product.base-url 설정이 필요합니다.");
         }
         this.properties = properties;
+        this.currentUserProvider = currentUserProvider;
+        this.serviceTokenManager = serviceTokenManager;
         this.restClient = builder.baseUrl(properties.getBaseUrl()).build();
     }
 
@@ -33,6 +46,8 @@ public class ProductApiClient {
         try {
             ProductResponse body = restClient.get()
                     .uri(properties.getPaths().getDetail(), productId)
+                    .header(HttpHeaders.AUTHORIZATION, serviceTokenManager.authorizationHeaderValue())
+                    .headers(this::applyUserHeaders)
                     .retrieve()
                     .body(ProductResponse.class);
 
@@ -55,6 +70,8 @@ public class ProductApiClient {
             restClient.patch()
                     .uri(properties.getPaths().getStock(), productId)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, serviceTokenManager.authorizationHeaderValue())
+                    .headers(headers -> applyUserHeaders(headers))
                     .body(new ChangeStockRequest(delta))
                     .retrieve()
                     .toBodilessEntity();
@@ -70,6 +87,7 @@ public class ProductApiClient {
         try {
             restClient.get()
                     .uri(properties.getPaths().getHealth())
+                    .header(HttpHeaders.AUTHORIZATION, serviceTokenManager.authorizationHeaderValue())
                     .retrieve()
                     .toBodilessEntity();
             return true;
@@ -121,5 +139,16 @@ public class ProductApiClient {
 
     private void changeStockFallback(long productId, int delta, Throwable ex) {
         throw new IllegalStateException("재고 변경을 수행할 수 없습니다. 잠시 후 다시 시도해주세요.", ex);
+    }
+
+    private void applyUserHeaders(HttpHeaders headers) {
+        String userId = currentUserProvider.userIdOrNull();
+        if (userId != null) {
+            headers.set(USER_ID_HEADER, userId);
+        }
+        String permissions = currentUserProvider.permissionsHeader();
+        if (permissions != null && !permissions.isBlank()) {
+            headers.set(PERMISSIONS_HEADER, permissions);
+        }
     }
 }

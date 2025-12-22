@@ -18,6 +18,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.msashop.auth.infrastructure.config.InternalAccessProperties;
+import com.msashop.auth.infrastructure.security.InternalAccessFilter;
 import com.msashop.auth.infrastructure.security.RestAccessDeniedHandler;
 import com.msashop.auth.infrastructure.security.jwt.JwtAuthenticationEntryPoint;
 import com.msashop.auth.infrastructure.security.jwt.JwtAuthenticationFilter;
@@ -26,19 +28,22 @@ import com.msashop.auth.infrastructure.security.jwt.JwtProperties;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties({JwtProperties.class, CorsProperties.class})
+@EnableConfigurationProperties({JwtProperties.class, CorsProperties.class, InternalAccessProperties.class})
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final CorsProperties corsProperties;
+    private final InternalAccessFilter internalAccessFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            CorsProperties corsProperties) {
+            CorsProperties corsProperties,
+            InternalAccessFilter internalAccessFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.corsProperties = corsProperties;
+        this.internalAccessFilter = internalAccessFilter;
     }
 
     @Bean
@@ -56,6 +61,7 @@ public class SecurityConfig {
                     .accessDeniedHandler(accessDeniedHandler))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers("/internal/**").permitAll()
                     .requestMatchers(
                             "/login",
                             "/refresh",
@@ -66,6 +72,7 @@ public class SecurityConfig {
                     ).permitAll()
                     .anyRequest().authenticated()
             )
+            .addFilterBefore(internalAccessFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
         return http.build();
     }

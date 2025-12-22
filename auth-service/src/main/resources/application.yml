@@ -77,3 +77,12 @@ cors:
 security:
   cookies:
     secure: false
+  internal:
+    header-name: X-Internal-Secret
+    service-secret: ${INTERNAL_SERVICE_SECRET:local-internal-secret}
+  service-accounts:
+    accounts:
+      - client-id: order-service
+        client-secret: ${ORDER_SERVICE_CLIENT_SECRET:local-order-service-secret}
+        permissions:
+          - PRODUCT_UPDATE

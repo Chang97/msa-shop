@@ -26,6 +26,14 @@ spring:
                 required-permissions: PRODUCT_CREATE,PROUDCT_UPDATE,PRODUCT_DELETE
               filters:
                 - JwtAuthentication
+            - id: products-internal
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/internal/products/**
+              filters:
+                - RewritePath=/api/internal(?<segment>/?.*), /api${segment}
+                - JwtAuthentication
+                - RequireServiceClient=order-service
             - id: orders-secure
               uri: http://localhost:8083
               predicates:

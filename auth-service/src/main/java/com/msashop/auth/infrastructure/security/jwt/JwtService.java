@@ -15,6 +15,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 
+import com.msashop.auth.identity.auth.domain.model.ServiceAccount;
 import com.msashop.auth.infrastructure.security.userdetails.UserPrincipal;
 
 import io.jsonwebtoken.Claims;
@@ -66,6 +67,23 @@ public class JwtService {
                 .setSubject(principal.getUsername())
                 .claim("uid", principal.getId())
                 .claim("perms", extractPermissions(principal.getAuthorities()))
+                .claim("cs", now.getEpochSecond())
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(expiresAt))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateServiceToken(ServiceAccount account) {
+        Instant now = Instant.now();
+        Instant expiresAt = now.plusSeconds(properties.accessTokenExpirationSeconds());
+        return Jwts.builder()
+                .setHeaderParam("alg", SignatureAlgorithm.HS256.getValue())
+                .setHeaderParam("typ", "JWT")
+                .setSubject("service:" + account.clientId())
+                .claim("cid", account.clientId())
+                .claim("svc", true)
+                .claim("perms", account.permissionsOrEmpty())
                 .claim("cs", now.getEpochSecond())
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(expiresAt))
